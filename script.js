@@ -22,7 +22,7 @@ window.addEventListener("resize", () => {
 /* ================= COUNTDOWN ================= */
 
 // TEST MODE
-const TEST_MODE = false;
+const TEST_MODE = true;
 
 const now = new Date();
 const target = TEST_MODE
@@ -93,7 +93,12 @@ class Rocket {
     this.trail = [];
     this.done = false;
     this.color = `hsl(${Math.random() * 360},100%,60%)`;
+
+    // ✅ STORE TARGET FOR MESSAGE
+    this.msgX = x;
+    this.msgY = y;
   }
+
   update() {
     this.y += this.vy;
     this.trail.push({ x: this.x, y: this.y + 8, alpha: 1 });
@@ -101,9 +106,10 @@ class Rocket {
 
     if (this.y <= this.targetY) {
       this.done = true;
-      explode(this.x, this.y);
+      explode(this.x, this.y, this.msgX, this.msgY); // ✅ PASS DATA
     }
   }
+
   draw() {
     this.trail.forEach(t => {
       ctx.globalAlpha = t.alpha;
@@ -115,11 +121,14 @@ class Rocket {
   }
 }
 
-function explode(x, y) {
+function explode(x, y, msgX, msgY) {
   const color = `hsl(${Math.random() * 360},100%,60%)`;
   for (let i = 0; i < 80; i++) {
     particles.push(new Particle(x, y, color, 6));
   }
+
+  // ✅ MESSAGE APPEARS ON POP
+  spawnBubble(msgX, msgY);
 }
 
 /* ================= MESSAGES ================= */
@@ -156,6 +165,8 @@ function spawnBubble(x, y) {
 
 /* ================= CELEBRATION ================= */
 
+/* ================= CELEBRATION ================= */
+
 let active = false;
 
 startBtn.onclick = () => {
@@ -165,10 +176,16 @@ startBtn.onclick = () => {
 
 resetBtn.onclick = () => location.reload();
 
+/* 🔥 STORE LAST CLICK POSITION */
+let lastClick = { x: 0, y: 0 };
+
 window.addEventListener("click", e => {
   if (!active || e.target.tagName === "BUTTON") return;
+
+  lastClick.x = e.clientX;
+  lastClick.y = e.clientY;
+
   rockets.push(new Rocket(e.clientX, e.clientY));
-  spawnBubble(e.clientX, e.clientY);
 });
 
 /* ================= LOOP ================= */
