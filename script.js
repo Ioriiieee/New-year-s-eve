@@ -6,6 +6,7 @@ const countdownEl = document.getElementById("countdown");
 const celebrationEl = document.getElementById("celebration");
 const startBtn = document.getElementById("startBtn");
 const resetBtn = document.getElementById("resetBtn");
+const countdownStartBtn = document.getElementById("countdownStartBtn");
 
 const daysEl = document.getElementById("days");
 const hoursEl = document.getElementById("hours");
@@ -33,11 +34,15 @@ let countdownDone = false;
 
 function updateCountdown() {
   const diff = target - new Date();
+
   if (diff <= 0) {
-    countdownDone = true;
-    countdownEl.style.display = "none";
-    celebrationEl.style.display = "flex";
-    overlay.style.opacity = "0";
+    daysEl.textContent = 0;
+    hoursEl.textContent = "00";
+    minutesEl.textContent = "00";
+    secondsEl.textContent = "00";
+
+    // ✅ Show start button instead of auto transition
+    countdownStartBtn.style.display = "inline-block";
     return;
   }
 
@@ -159,8 +164,10 @@ function spawnBubble(x, y) {
   bubble.style.left = bx + "px";
   bubble.style.top = by + "px";
 
-  setTimeout(() => bubble.classList.add("fade-out"), 5000);
-  setTimeout(() => bubble.remove(), 5800);
+
+  // message time adjustments
+  setTimeout(() => bubble.classList.add("fade-out"), 3000);
+  setTimeout(() => bubble.remove(), 4600);
 }
 
 /* ================= CELEBRATION ================= */
@@ -169,15 +176,20 @@ function spawnBubble(x, y) {
 
 let active = false;
 
-startBtn.onclick = () => {
-  active = true;
-  startBtn.style.display = "none";
-};
+
 
 resetBtn.onclick = () => location.reload();
 
 /* 🔥 STORE LAST CLICK POSITION */
 let lastClick = { x: 0, y: 0 };
+
+countdownStartBtn.onclick = () => {
+  countdownEl.style.display = "none";
+  celebrationEl.style.display = "flex";
+  overlay.style.opacity = "0";
+
+  active = true; // fireworks enabled immediately
+};
 
 window.addEventListener("click", e => {
   if (!active || e.target.tagName === "BUTTON") return;
@@ -226,6 +238,15 @@ if (bgMusic) {
         console.warn('bgMusic failed to load:', e);
     });
 }
+
+countdownStartBtn.onclick = () => {
+  countdownEl.style.display = "none";
+  celebrationEl.style.display = "flex";
+  overlay.style.opacity = "0";
+
+  // enable fireworks logic
+  active = true;
+};
 
 // Autoplay music on first user interaction
 document.addEventListener('click', () => {
