@@ -19,7 +19,7 @@ canvas {
   z-index: 0;
 }
 
-/* Dark overlay */
+/* Overlay */
 #overlay {
   position: fixed;
   inset: 0;
@@ -32,57 +32,60 @@ canvas {
 /* Countdown */
 #countdown {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  inset: 0;
   display: flex;
-  gap: 16px;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
   z-index: 2;
   color: white;
-}
-
-.time {
-  text-align: center;
 }
 
 .time span {
   font-size: 3rem;
   font-weight: 600;
 }
-
 .time small {
-  font-size: 0.9rem;
   opacity: 0.8;
 }
 
-/* Celebration UI */
+/* Celebration */
 #celebration {
   position: fixed;
   inset: 0;
   display: none;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  gap: 24px;
   z-index: 2;
   color: white;
-  gap: 20px;
 }
 
-#celebration h1 {
+#happyText {
   font-size: 3rem;
+  opacity: 0;
+  transform: scale(0.9);
+  animation: popIn 1s ease forwards;
+}
+
+@keyframes popIn {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 button {
   padding: 12px 24px;
   border-radius: 999px;
   border: none;
-  font-size: 1rem;
   cursor: pointer;
+  font-size: 1rem;
   background: linear-gradient(135deg, #ff9a9e, #fad0c4);
-  color: #222;
 }
 
-/* Firework Message Bubble */
+/* Message Bubble */
 .bubble {
   position: fixed;
   padding: 10px 16px;
@@ -94,8 +97,7 @@ button {
   pointer-events: none;
   opacity: 0;
   transform: translateY(10px) scale(0.9);
-  animation: bubbleIn 0.8s ease forwards;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+  animation: bubbleIn 0.4s ease forwards;
 }
 
 @keyframes bubbleIn {
@@ -104,3 +106,40 @@ button {
     transform: translateY(0) scale(1);
   }
 }
+
+.bubble.fade-out {
+  animation: bubbleOut 0.8s ease forwards;
+}
+
+@keyframes bubbleOut {
+  to {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+}
+
+/* MUSIC ICON (FLOATING BUTTON — BOTTOM RIGHT) */
+#musicBtn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    font-size: 1.6rem;
+    background: rgba(255, 255, 255, 0.8);
+    color: #ff4f79;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 20;
+    backdrop-filter: blur(4px);
+    transition: 0.3s ease;
+}
+#musicBtn:hover {
+    background: rgba(255, 255, 255, 1);
+    transform: scale(1.1);
+}
+

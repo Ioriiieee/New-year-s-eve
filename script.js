@@ -1,10 +1,16 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
+
 const overlay = document.getElementById("overlay");
 const countdownEl = document.getElementById("countdown");
 const celebrationEl = document.getElementById("celebration");
 const startBtn = document.getElementById("startBtn");
 const resetBtn = document.getElementById("resetBtn");
+
+const daysEl = document.getElementById("days");
+const hoursEl = document.getElementById("hours");
+const minutesEl = document.getElementById("minutes");
+const secondsEl = document.getElementById("seconds");
 
 canvas.width = innerWidth;
 canvas.height = innerHeight;
@@ -13,9 +19,45 @@ window.addEventListener("resize", () => {
   canvas.height = innerHeight;
 });
 
+/* ================= COUNTDOWN ================= */
+
+// TEST MODE
+const TEST_MODE = false;
+
+const now = new Date();
+const target = TEST_MODE
+  ? new Date(now.getTime())
+  : new Date(now.getFullYear() + 1, 0, 1, 0, 0, 0);
+
+let countdownDone = false;
+
+function updateCountdown() {
+  const diff = target - new Date();
+  if (diff <= 0) {
+    countdownDone = true;
+    countdownEl.style.display = "none";
+    celebrationEl.style.display = "flex";
+    overlay.style.opacity = "0";
+    return;
+  }
+
+  const s = Math.floor(diff / 1000);
+  daysEl.textContent = Math.floor(s / 86400);
+  hoursEl.textContent = String(Math.floor(s % 86400 / 3600)).padStart(2, "0");
+  minutesEl.textContent = String(Math.floor(s % 3600 / 60)).padStart(2, "0");
+  secondsEl.textContent = String(s % 60).padStart(2, "0");
+}
+setInterval(updateCountdown, 1000);
+updateCountdown();
+
 /* ================= FIREWORKS ================= */
+
+function random(min, max) {
+  return Math.random() * (max - min) + min;
+}
+
 const particles = [];
-function random(min, max) { return Math.random() * (max - min) + min; }
+const rockets = [];
 
 class Particle {
   constructor(x, y, color, power) {
@@ -29,7 +71,7 @@ class Particle {
   update() {
     this.x += this.vx;
     this.y += this.vy;
-    this.vy += 0.02;
+    this.vy += 0.03;
     this.alpha -= 0.015;
   }
   draw() {
@@ -42,115 +84,181 @@ class Particle {
   }
 }
 
-function explode(x, y, strong = false) {
-  const count = strong ? 80 : 30;
-  const power = strong ? 6 : 3;
-  for (let i = 0; i < count; i++) {
-    particles.push(new Particle(x, y, `hsl(${Math.random()*360},100%,60%)`, power));
+class Rocket {
+  constructor(x, y) {
+    this.x = x;
+    this.y = canvas.height;
+    this.targetY = y;
+    this.vy = -7;
+    this.trail = [];
+    this.done = false;
+    this.color = `hsl(${Math.random() * 360},100%,60%)`;
+  }
+  update() {
+    this.y += this.vy;
+    this.trail.push({ x: this.x, y: this.y + 8, alpha: 1 });
+    if (this.trail.length > 25) this.trail.shift();
+
+    if (this.y <= this.targetY) {
+      this.done = true;
+      explode(this.x, this.y);
+    }
+  }
+  draw() {
+    this.trail.forEach(t => {
+      ctx.globalAlpha = t.alpha;
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(t.x, t.y, 2, 6);
+      t.alpha -= 0.05;
+    });
+    ctx.globalAlpha = 1;
   }
 }
 
-/* Background fireworks */
-setInterval(() => {
-  explode(random(100, canvas.width-100), random(100, canvas.height/2), false);
-}, 1200);
-
-/* Confetti Burst */
-function confettiBurst() {
-  for (let i=0; i<200; i++){
-    particles.push(new Particle(random(0,canvas.width), random(0,canvas.height), `hsl(${Math.random()*360},100%,70%)`, 4));
+function explode(x, y) {
+  const color = `hsl(${Math.random() * 360},100%,60%)`;
+  for (let i = 0; i < 80; i++) {
+    particles.push(new Particle(x, y, color, 6));
   }
 }
 
-/* ================= MESSAGE BUBBLES ================= */
+/* ================= MESSAGES ================= */
+
 const messages = [
-  "Wishing you a year full of warmth and light ✨",
-  "May this year bring gentle joy and peace 🌙",
-  "New beginnings look good on you 🌸",
-  "Cheers to growth, healing, and quiet wins 💫",
-  "May happiness find you in small moments 🎇"
+  "Wishing you warmth and light ✨",
+  "New beginnings look good on you 🌱",
+  "Gentle wins this year 💫",
+  "Cheers to growth 🎆",
+  "May joy find you 🌙"
 ];
+
 let msgIndex = 0;
-let bubbleTimeout = null;
 
 function spawnBubble(x, y) {
   const bubble = document.createElement("div");
   bubble.className = "bubble";
-  bubble.textContent = messages[msgIndex % messages.length];
-  msgIndex++;
+  bubble.textContent = messages[msgIndex++ % messages.length];
   document.body.appendChild(bubble);
 
   const rect = bubble.getBoundingClientRect();
-  let bx = x - rect.width/2;
-  let by = y - 50;
-  bx = Math.max(10, Math.min(window.innerWidth - rect.width - 10, bx));
-  by = Math.max(10, Math.min(window.innerHeight - rect.height - 10, by));
+  let bx = x - rect.width / 2 + random(-30, 30);
+  let by = y - 60 + random(-20, 20);
+
+  bx = Math.max(10, Math.min(innerWidth - rect.width - 10, bx));
+  by = Math.max(10, Math.min(innerHeight - rect.height - 10, by));
 
   bubble.style.left = bx + "px";
   bubble.style.top = by + "px";
 
-  setTimeout(()=>bubble.remove(), 5000);
+  setTimeout(() => bubble.classList.add("fade-out"), 5000);
+  setTimeout(() => bubble.remove(), 5800);
 }
 
-/* ================= CELEBRATION MODE ================= */
-let celebrationActive = false;
+/* ================= CELEBRATION ================= */
+
+let active = false;
 
 startBtn.onclick = () => {
-  celebrationActive = true;
-  startBtn.disabled = true;
-  startBtn.style.opacity = "0.6";
-  overlay.style.opacity = "0";
-  countdownEl.style.display = "none";
-  celebrationEl.style.display = "flex";
-  confettiBurst();
+  active = true;
+  startBtn.style.display = "none";
 };
 
 resetBtn.onclick = () => location.reload();
 
-window.addEventListener("click", (e)=>{
-  if(!celebrationActive) return;
-  if(e.target.tagName==="BUTTON") return;
-
-  const x = e.clientX;
-  const y = e.clientY;
-
-  explode(x, y, true);
-
-  // FIX: cancel previous pending bubble
-  if(bubbleTimeout) clearTimeout(bubbleTimeout);
-  bubbleTimeout = setTimeout(()=>{
-    spawnBubble(x, y);
-    bubbleTimeout = null;
-  }, 600);
+window.addEventListener("click", e => {
+  if (!active || e.target.tagName === "BUTTON") return;
+  rockets.push(new Rocket(e.clientX, e.clientY));
+  spawnBubble(e.clientX, e.clientY);
 });
 
-window.addEventListener("touchstart", (e)=>{
-  if(!celebrationActive) return;
-  const touch = e.touches[0];
-  explode(touch.clientX, touch.clientY, true);
+/* ================= LOOP ================= */
 
-  if(bubbleTimeout) clearTimeout(bubbleTimeout);
-  bubbleTimeout = setTimeout(()=>{
-    spawnBubble(touch.clientX, touch.clientY);
-    bubbleTimeout = null;
-  }, 600);
-});
-
-/* ================= ANIMATION LOOP ================= */
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  particles.forEach((p,i)=>{
+
+  rockets.forEach((r, i) => {
+    r.update();
+    r.draw();
+    if (r.done) rockets.splice(i, 1);
+  });
+
+  particles.forEach((p, i) => {
     p.update();
     p.draw();
-    if(p.alpha<=0) particles.splice(i,1);
+    if (p.alpha <= 0) particles.splice(i, 1);
   });
+
   requestAnimationFrame(animate);
 }
 animate();
+let playing = false;
+let autoplayTriggered = false;
 
-/* ================= TEST MODE ================= */
-// immediate celebration for testing
-let countdownFinished = true;
-if(countdownFinished){
-  startBtn.click();
+// Accessibility attributes
+if (musicBtn) {
+    musicBtn.setAttribute('aria-label', 'Toggle background music');
+    musicBtn.setAttribute('aria-pressed', 'false');
+    musicBtn.textContent = "🎵"; // Start with play icon
 }
+
+// Ensure audio is paused on page load
+if (bgMusic) {
+    bgMusic.pause();
+    bgMusic.currentTime = 0;
+    bgMusic.addEventListener('error', (e) => {
+        console.warn('bgMusic failed to load:', e);
+    });
+}
+
+// Autoplay music on first user interaction
+document.addEventListener('click', () => {
+    if (!autoplayTriggered && bgMusic && !playing) {
+        autoplayTriggered = true;
+        bgMusic.play()
+            .then(() => {
+                musicBtn.textContent = "🔇";
+                musicBtn.setAttribute('aria-pressed', 'true');
+                playing = true;
+            })
+            .catch((err) => {
+                console.warn('Autoplay prevented:', err);
+            });
+    }
+}, { once: false });
+
+musicBtn.addEventListener("click", () => {
+    if (!bgMusic) {
+        console.warn('bgMusic element not found');
+        return;
+    }
+
+    // Check actual playback state instead of our variable
+    // (handles cases where user plays via browser controls)
+    if (bgMusic.paused) {
+        // Audio is paused, so play it
+        const playPromise = bgMusic.play();
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                musicBtn.textContent = "🔇";
+                musicBtn.setAttribute('aria-pressed', 'true');
+                playing = true;
+            }).catch((err) => {
+                console.warn('Audio play prevented:', err);
+            });
+        } else {
+            // Older browsers may not return a promise
+            musicBtn.textContent = "🔇";
+            musicBtn.setAttribute('aria-pressed', 'true');
+            playing = true;
+        }
+    } else {
+        // Audio is playing, so pause it
+        bgMusic.pause();
+        musicBtn.textContent = "🎵";
+        musicBtn.setAttribute('aria-pressed', 'false');
+        playing = false;
+    }
+});
+
+
+init();

@@ -2,36 +2,36 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>New Year Celebration</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <canvas id="canvas"></canvas>
-  <div id="overlay"></div>
+<canvas id="canvas"></canvas>
 
-  <div id="countdown">
-    <div class="time">
-      <span id="days">0</span><br><small>Days</small>
-    </div>
-    <div class="time">
-      <span id="hours">0</span><br><small>Hours</small>
-    </div>
-    <div class="time">
-      <span id="minutes">0</span><br><small>Minutes</small>
-    </div>
-    <div class="time">
-      <span id="seconds">0</span><br><small>Seconds</small>
-    </div>
-  </div>
+<div id="overlay"></div>
 
-  <div id="celebration">
-    <h1>🎉 Happy New Year! 🎉</h1>
-    <button id="startBtn">Start Celebration 🎆</button>
-    <button id="resetBtn">Reset 🔁</button>
-  </div>
+<!-- COUNTDOWN UI -->
+<div id="countdown">
+  <div class="time"><span id="days">0</span><small>Days</small></div>
+  <div class="time"><span id="hours">00</span><small>Hours</small></div>
+  <div class="time"><span id="minutes">00</span><small>Minutes</small></div>
+  <div class="time"><span id="seconds">00</span><small>Seconds</small></div>
+</div>
 
-  <script src="script.js"></script>
+<!-- CELEBRATION UI -->
+<div id="celebration">
+  <h1 id="happyText">🎉 Happy New Year!</h1>
+  <button id="startBtn">Start Celebration 🎆</button>
+  <button id="resetBtn">Reset 🔁</button>
+</div>
+<button id="musicBtn">🎵</button>
+
+    <audio id="bgMusic" loop preload="metadata">
+        <source src="music.mp3" type="audio/mpeg">
+        Your browser does not support audio.
+    </audio>
+<script src="script.js"></script>
 </body>
 </html>
