@@ -23,11 +23,11 @@ window.addEventListener("resize", () => {
 /* ================= COUNTDOWN ================= */
 
 // TEST MODE
-const TEST_MODE = true;
+const TEST_MODE = false;
 
 const now = new Date();
 const target = TEST_MODE
-  ? new Date(now.getTime())
+  ? new Date(now.getTime() + 10 * 1000) 
   : new Date(now.getFullYear() + 1, 0, 1, 0, 0, 0);
 
 let countdownDone = false;
