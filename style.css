@@ -9,8 +9,10 @@ html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: black;
+  background: radial-gradient(circle at top, #1a1a2e, #050505 70%);
 }
+
+
 
 /* Canvas */
 canvas {
@@ -34,6 +36,7 @@ canvas {
   position: fixed;
   inset: 0;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: 20px;
@@ -42,11 +45,33 @@ canvas {
 }
 
 .time span {
-  font-size: 3rem;
+  font-size: 3.4rem;
   font-weight: 600;
+  color: #fff;
+  text-shadow:
+    0 0 8px rgba(255,255,255,0.6),
+    0 0 18px rgba(255,105,180,0.5);
+  animation: numberPulse 2.5s ease-in-out infinite;
 }
+
+@keyframes numberPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+}
+
 .time small {
-  opacity: 0.8;
+  display: block;
+  margin-top: 6px;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  opacity: 0.7;
 }
 
 /* Celebration */
@@ -169,16 +194,20 @@ button {
 }
 
 /* Countdown layout improvement */
-#countdown {
-  flex-direction: column;
-  gap: 20px;
-}
+
 
 #countdown .time {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  min-width: 70px;
+  min-width: 72px;
+}
+
+#seconds {
+  color: #ff9acb;
+  text-shadow:
+    0 0 10px rgba(255,154,203,0.8),
+    0 0 25px rgba(255,154,203,0.6);
 }
 
 #countdownStartBtn {
