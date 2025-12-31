@@ -23,7 +23,7 @@ window.addEventListener("resize", () => {
 /* ================= COUNTDOWN ================= */
 
 // TEST MODE
-const TEST_MODE = false;
+const TEST_MODE = true;
 
 const now = new Date();
 const target = TEST_MODE
