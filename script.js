@@ -22,18 +22,14 @@ window.addEventListener("resize", () => {
 
 /* ================= COUNTDOWN ================= */
 
-// TEST MODE
-const TEST_MODE = true;
-
-const now = new Date();
-const target = TEST_MODE
-  ? new Date(now.getTime() + 10 * 1000) 
-  : new Date(now.getFullYear() + 1, 0, 1, 0, 0, 0);
+/* ✅ FIXED UNLOCK DATE (PH TIME) */
+const UNLOCK_DATE = new Date("2025-12-25T00:00:00+08:00");
 
 let countdownDone = false;
 
 function updateCountdown() {
-  const diff = target - new Date();
+  const now = new Date();
+  const diff = UNLOCK_DATE - now;
 
   if (diff <= 0) {
     daysEl.textContent = 0;
@@ -41,17 +37,24 @@ function updateCountdown() {
     minutesEl.textContent = "00";
     secondsEl.textContent = "00";
 
-    // ✅ Show start button instead of auto transition
     countdownStartBtn.style.display = "inline-block";
+    countdownDone = true;
     return;
   }
 
-  const s = Math.floor(diff / 1000);
-  daysEl.textContent = Math.floor(s / 86400);
-  hoursEl.textContent = String(Math.floor(s % 86400 / 3600)).padStart(2, "0");
-  minutesEl.textContent = String(Math.floor(s % 3600 / 60)).padStart(2, "0");
-  secondsEl.textContent = String(s % 60).padStart(2, "0");
+  const totalSeconds = Math.floor(diff / 1000);
+
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  daysEl.textContent = days;
+  hoursEl.textContent = String(hours).padStart(2, "0");
+  minutesEl.textContent = String(minutes).padStart(2, "0");
+  secondsEl.textContent = String(seconds).padStart(2, "0");
 }
+
 setInterval(updateCountdown, 1000);
 updateCountdown();
 
@@ -99,7 +102,6 @@ class Rocket {
     this.done = false;
     this.color = `hsl(${Math.random() * 360},100%,60%)`;
 
-    // ✅ STORE TARGET FOR MESSAGE
     this.msgX = x;
     this.msgY = y;
   }
@@ -111,7 +113,7 @@ class Rocket {
 
     if (this.y <= this.targetY) {
       this.done = true;
-      explode(this.x, this.y, this.msgX, this.msgY); // ✅ PASS DATA
+      explode(this.x, this.y, this.msgX, this.msgY);
     }
   }
 
@@ -131,14 +133,12 @@ function explode(x, y, msgX, msgY) {
   for (let i = 0; i < 80; i++) {
     particles.push(new Particle(x, y, color, 6));
   }
-
-  // ✅ MESSAGE APPEARS ON POP
   spawnBubble(msgX, msgY);
 }
 
 /* ================= MESSAGES ================= */
 
-const messages = [
+const messages = [ /* SAME MESSAGE ARRAY — UNTOUCHED */ 
   "Wishing you warmth and light ✨",
   "New beginnings look good on you 🌱",
   "Gentle wins this year 💫",
@@ -268,6 +268,7 @@ const messages = [
   "Sending love across the distance. 💕",
   "Hope your heart feels light tonight. 💛",
   "i love you sis. 🥰",
+
 ];
 
 let msgIndex = 0;
@@ -288,39 +289,25 @@ function spawnBubble(x, y) {
   bubble.style.left = bx + "px";
   bubble.style.top = by + "px";
 
-
-  // message time adjustments
   setTimeout(() => bubble.classList.add("fade-out"), 3000);
   setTimeout(() => bubble.remove(), 4600);
 }
 
 /* ================= CELEBRATION ================= */
 
-/* ================= CELEBRATION ================= */
-
 let active = false;
 
-
-
 resetBtn.onclick = () => location.reload();
-
-/* 🔥 STORE LAST CLICK POSITION */
-let lastClick = { x: 0, y: 0 };
 
 countdownStartBtn.onclick = () => {
   countdownEl.style.display = "none";
   celebrationEl.style.display = "flex";
   overlay.style.opacity = "0";
-
-  active = true; // fireworks enabled immediately
+  active = true;
 };
 
 window.addEventListener("click", e => {
   if (!active || e.target.tagName === "BUTTON") return;
-
-  lastClick.x = e.clientX;
-  lastClick.y = e.clientY;
-
   rockets.push(new Rocket(e.clientX, e.clientY));
 });
 
@@ -344,83 +331,44 @@ function animate() {
   requestAnimationFrame(animate);
 }
 animate();
+
+/* ================= MUSIC ================= */
+
 let playing = false;
 let autoplayTriggered = false;
 
-// Accessibility attributes
 if (musicBtn) {
-    musicBtn.setAttribute('aria-label', 'Toggle background music');
-    musicBtn.setAttribute('aria-pressed', 'false');
-    musicBtn.textContent = "🎵"; // Start with play icon
+  musicBtn.setAttribute('aria-label', 'Toggle background music');
+  musicBtn.setAttribute('aria-pressed', 'false');
+  musicBtn.textContent = "🎵";
 }
 
-// Ensure audio is paused on page load
 if (bgMusic) {
-    bgMusic.pause();
-    bgMusic.currentTime = 0;
-    bgMusic.addEventListener('error', (e) => {
-        console.warn('bgMusic failed to load:', e);
-    });
+  bgMusic.pause();
+  bgMusic.currentTime = 0;
 }
 
-countdownStartBtn.onclick = () => {
-  countdownEl.style.display = "none";
-  celebrationEl.style.display = "flex";
-  overlay.style.opacity = "0";
-
-  // enable fireworks logic
-  active = true;
-};
-
-// Autoplay music on first user interaction
 document.addEventListener('click', () => {
-    if (!autoplayTriggered && bgMusic && !playing) {
-        autoplayTriggered = true;
-        bgMusic.play()
-            .then(() => {
-                musicBtn.textContent = "🔇";
-                musicBtn.setAttribute('aria-pressed', 'true');
-                playing = true;
-            })
-            .catch((err) => {
-                console.warn('Autoplay prevented:', err);
-            });
-    }
-}, { once: false });
-
-musicBtn.addEventListener("click", () => {
-    if (!bgMusic) {
-        console.warn('bgMusic element not found');
-        return;
-    }
-
-    // Check actual playback state instead of our variable
-    // (handles cases where user plays via browser controls)
-    if (bgMusic.paused) {
-        // Audio is paused, so play it
-        const playPromise = bgMusic.play();
-        if (playPromise !== undefined) {
-            playPromise.then(() => {
-                musicBtn.textContent = "🔇";
-                musicBtn.setAttribute('aria-pressed', 'true');
-                playing = true;
-            }).catch((err) => {
-                console.warn('Audio play prevented:', err);
-            });
-        } else {
-            // Older browsers may not return a promise
-            musicBtn.textContent = "🔇";
-            musicBtn.setAttribute('aria-pressed', 'true');
-            playing = true;
-        }
-    } else {
-        // Audio is playing, so pause it
-        bgMusic.pause();
-        musicBtn.textContent = "🎵";
-        musicBtn.setAttribute('aria-pressed', 'false');
-        playing = false;
-    }
+  if (!autoplayTriggered && bgMusic && !playing) {
+    autoplayTriggered = true;
+    bgMusic.play().then(() => {
+      musicBtn.textContent = "🔇";
+      musicBtn.setAttribute('aria-pressed', 'true');
+      playing = true;
+    }).catch(() => {});
+  }
 });
 
+musicBtn.addEventListener("click", () => {
+  if (bgMusic.paused) {
+    bgMusic.play();
+    musicBtn.textContent = "🔇";
+    playing = true;
+  } else {
+    bgMusic.pause();
+    musicBtn.textContent = "🎵";
+    playing = false;
+  }
+});
 
 init();
